@@ -162,13 +162,13 @@ def shoot():
         IO.output(9,True)
 
 
-inti_dir = compass_read()
+inti_dir = compass_read()   #setup inital direction
 shootcount = 0
 
 
 while 1:
         
-        IO.output(9,False)      #load
+        IO.output(9,False)      #load shooting mechanism
 
         sensor2=IO.input(5)		#ir avoidance sensors
         sensor5=IO.input(6)
@@ -185,20 +185,26 @@ while 1:
         if(target3==False):
                 if(target2==False):
                         if(target1==False):
-                                if (inrange(inti_dir,direction)=True):
+                                if (inrange(inti_dir,direction)=True): #see if the bot is facing forward
                                 		obstacle_avoid(sensor1,sensor2,sensor3,sensor4,sensor5)
                                 else:
                                 		right(1)
                                 		time.sleep(0.1)
                                 		print('change direction to forward') 
                         else:
-                                print('target lock')
-                                stop(1)
-                                shoot()
-                                if (inti_dir<=0):
-                                	inti_dir=inti_dir+180
+                                if (shootcount==0):
+                                        print('target lock')
+                                        stop(1)
+                                        shoot()
+                                        shootcount=1
+                                        if (inti_dir<=0):               #switch direction 180 degrees to go homebase
+                                        	inti_dir=inti_dir+180
+                                        else:
+                                        	inti_dir=inti_dir-180
                                 else:
-                                	inti_dir=inti_dir-180
+                                        print('homebase lock')
+                                        forward()
+
                 else:
                         print('target on left')
                         left(90)
