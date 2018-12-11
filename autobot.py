@@ -1,5 +1,8 @@
 import RPi.GPIO as IO
 import time
+import smbus
+import time
+import math
 from math import pi
 
 IO.setwarnings(False)
@@ -30,18 +33,76 @@ IO.setup(24,IO.OUT)
 
 IO.setup(9,IO.OUT)
 
+#pwm pin setup
+IO.setup(18,IO.OUT)
+pwm=IO.PWM(18,100)
+pwm.start(30)
 
+#physical property
 RPM=140
 D=3.1*2.54
 C=pi*D
 d=(4.5+0.75)*2.54
 
-def compass_read():
+#setting up the compass
+bus = smbus.SMBus(1)
 
+DEVICE_ADDRESS = 0x1e
+REGISTER_CRA_REG_M = 0x00
+REGISTER_MR_REG_M = 0x02
+REGISTER_OUT_X_H_M = 0x03
+REGISTER_OUT_X_LH_M = 0x04
+REGISTER_OUT_Z_H_M = 0x05
+REGISTER_OUT_Z_L_M = 0x06
+REGISTER_OUT_Y_L_M = 0X08
+REGISTER_OUT_Y_H_M = 0X07
+
+def getX():
+    xl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_LH_M)
+    xh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_H_M)
+    x =  (xh << 8) | xl
+    if x >= 32768:
+        x = x ^ 65535
+        x += 1
+        return -x
+    return x
+
+def getZ():
+    zl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_L_M)
+    zh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_H_M)
+    z = (zh << 8) | zl
+    if z >= 32768:
+        z = z ^ 65535
+        z += 1
+        return -z
+    return z
+
+def getY():
+    yl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_L_M)
+    yh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_H_M)
+    y = (yh << 8) | yl
+    if y >= 32768:
+        y = y ^ 65535
+        y += 1
+        return -y
+    return y
+
+bus.write_byte_data(DEVICE_ADDRESS, REGISTER_CRA_REG_M, 0x90)
+bus.write_byte_data(DEVICE_ADDRESS, REGISTER_MR_REG_M, 0)
+
+
+def compass_read():
+        x = getX()
+        y = getY()
+        z = getZ()
+        dir=math.degrees(math.atan2(y, x))
+        print(dir)
+        time.sleep(0.3)
 		return dir
 
 def inrange(range_mid,direction):
-		inran=1
+		
+        inran=1
 		if (0<=range_mid<90):
 			if(range_mid-90<=direction<range_mid+90):
 				inran=1
@@ -131,8 +192,6 @@ def obstacle_avoid(sensor1,sensor2,sensor3,sensor4,sensor5):
                                                 forward()
                                                 time.sleep(0.1)
                                         else:
-                                                back(5)
-                                        		time.sleep(0.3)
                                                 right(30)
                                                 time.sleep(0.1)
                                 else:
@@ -152,8 +211,6 @@ def obstacle_avoid(sensor1,sensor2,sensor3,sensor4,sensor5):
                         left(60)
                         time.sleep(0.3)
         else:
-                back(5)
-                time.sleep(0.3)
                 left(30)
                 time.sleep(0.1)
         return
