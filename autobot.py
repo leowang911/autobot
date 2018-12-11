@@ -58,34 +58,34 @@ REGISTER_OUT_Y_L_M = 0X08
 REGISTER_OUT_Y_H_M = 0X07
 
 def getX():
-    xl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_LH_M)
-    xh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_H_M)
-    x =  (xh << 8) | xl
-    if x >= 32768:
-        x = x ^ 65535
-        x += 1
-        return -x
-    return x
+        xl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_LH_M)
+        xh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_X_H_M)
+        x =  (xh << 8) | xl
+        if x >= 32768:
+            x = x ^ 65535
+            x += 1
+            return -x
+        return x
 
 def getZ():
-    zl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_L_M)
-    zh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_H_M)
-    z = (zh << 8) | zl
-    if z >= 32768:
-        z = z ^ 65535
-        z += 1
-        return -z
-    return z
+        zl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_L_M)
+        zh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Z_H_M)
+        z = (zh << 8) | zl
+        if z >= 32768:
+            z = z ^ 65535
+            z += 1
+            return -z
+        return z
 
 def getY():
-    yl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_L_M)
-    yh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_H_M)
-    y = (yh << 8) | yl
-    if y >= 32768:
-        y = y ^ 65535
-        y += 1
-        return -y
-    return y
+        yl = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_L_M)
+        yh = bus.read_byte_data(DEVICE_ADDRESS, REGISTER_OUT_Y_H_M)
+        y = (yh << 8) | yl
+        if y >= 32768:
+            y = y ^ 65535
+            y += 1
+            return -y
+        return y
 
 bus.write_byte_data(DEVICE_ADDRESS, REGISTER_CRA_REG_M, 0x90)
 bus.write_byte_data(DEVICE_ADDRESS, REGISTER_MR_REG_M, 0)
